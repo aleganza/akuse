@@ -1,0 +1,17 @@
+
+ src/client.js | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff a/node_modules/discord-rpc/src/client.js b/node_modules/discord-rpc/src/client.js
+--- a/node_modules/discord-rpc/src/client.js
++++ b/node_modules/discord-rpc/src/client.js
+@@ -518,6 +518,7 @@ class RPCClient extends EventEmitter {
+     return this.request(RPCCommands.SET_ACTIVITY, {
+       pid,
+       activity: {
++        type: args.type,
+         state: args.state,
+         details: args.details,
+         timestamps,
+--
+

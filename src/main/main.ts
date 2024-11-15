@@ -316,6 +316,7 @@ async function setActivity(details?: string, state?: string, startTimestamp?: nu
 
 
   RPC.setActivity({
+    type: 3, // "Watching" type
     details: details || '🌸 Watch anime without ads.',
     state: state || getRandomDiscordPhrase(),
     startTimestamp: startTimestamp || Date.now(),
