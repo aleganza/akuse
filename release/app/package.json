@@ -11,10 +11,10 @@
   "main": "./dist/main/main.js",
   "scripts": {
     "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
-    "postinstall": "npm run rebuild && npm run link-modules && git apply ./patches/0001-add-types-support.patch",
+    "postinstall": "npm run rebuild && npm run link-modules",
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
   "dependencies": {
-    "discord-rpc": "^4.0.1"
+    "@xhayper/discord-rpc": "^1.2.0"
   }
 }

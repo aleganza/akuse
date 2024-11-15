@@ -2,7 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
-const DiscordRPC = require('discord-rpc');
+import { Client as discordRpcClient } from "@xhayper/discord-rpc";
 import { OPEN_NEW_ISSUE_URL, SPONSOR_URL } from '../constants/utils';
 import { getAccessToken } from '../modules/anilist/anilistApi';
 import { clientData } from '../modules/clientData';
@@ -304,10 +304,10 @@ ipcMain.on('update-section', (event, ...args) => {
 
 /* DISCORD RPC */
 
-const clientId = '1256111110151475241';
-
-const RPC = new DiscordRPC.Client({ transport: 'ipc' });
-DiscordRPC.register(clientId);
+const RPC = new discordRpcClient({
+  transport: 'ipc',
+  clientId: '1256111110151475241'
+});
 
 async function setActivity(details?: string, state?: string, startTimestamp?: number, largeImageKey?: string, largeImageText?: string, smallImageKey?: string, instance?: boolean, buttons?: any[]) {
   if (!RPC || !mainWindow) {
@@ -315,7 +315,7 @@ async function setActivity(details?: string, state?: string, startTimestamp?: nu
   }
 
 
-  RPC.setActivity({
+  RPC.user.setActivity({
     type: 3, // "Watching" type
     details: details || '🌸 Watch anime without ads.',
     state: state || getRandomDiscordPhrase(),
@@ -336,7 +336,7 @@ async function setActivity(details?: string, state?: string, startTimestamp?: nu
 RPC.on('ready', () => {
   setActivity();
 });
-RPC.login({ clientId }).catch(console.error);
+RPC.login().catch(console.error);
 
 ipcMain.on('update-presence', (event, data) => {
   setActivity(data.details, data.state, data.startTimestamp, data.largeImageKey, data.largeImageText, data.smallImageKey, data.instance, data.buttons);
