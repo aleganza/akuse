@@ -98,7 +98,7 @@ const VideoPlayer: React.FC<{
     setActivity(true);
     ipcRenderer.send('update-presence', {
       details: `Watching ${listAnime.media.title?.english}`,
-      state: episodeTitle,
+      state: `Ep: ${episodeNumber} - ${episodeTitle}`,
       startTimestamp: Date.now(),
       largeImageKey: listAnime.media.coverImage?.large || 'akuse',
       largeImageText: listAnime.media.title?.english || 'akuse',
