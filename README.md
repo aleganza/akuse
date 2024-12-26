@@ -3,7 +3,9 @@
     <h1 align="center">akuse</h1>
 </p>
 
-<p align="center">Simple and easy to use anime streaming desktop app without ads.</p>
+<p align="center">
+  <strong>Simple and easy to use anime streaming desktop app without ads.</strong>
+</p>
 
 <p align="center">
     <img alt="license" src="https://img.shields.io/github/license/aleganza/akuse"> 
