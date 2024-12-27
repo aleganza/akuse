@@ -1,0 +1,19 @@
+.modal-page-wrapper .automatic-provider-search-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-page-wrapper .automatic-provider-search-content p {
+  color: var(--font-1);
+}
+
+.modal-page-wrapper .automatic-provider-search-content strong {
+  color: var(--font-3);
+}
+
+.modal-page-wrapper .automatic-provider-search-content .automatic-provider-search-wrapper {
+  display: flex;
+  justify-content: end;
+  margin-top: 20px;
+  gap: 20px;
+}

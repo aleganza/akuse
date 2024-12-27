@@ -1,18 +1,17 @@
 import { IVideo } from '@consumet/extensions';
+import Gogoanime from '@consumet/extensions/dist/providers/anime/gogoanime';
 import ProviderCache from './cache';
-import Zoro from '@consumet/extensions/dist/providers/anime/zoro';
-import axios from 'axios';
-import { getCacheId } from '../utils';
+import { getCacheId } from '../../utils';
 
 const cache = new ProviderCache();
-const consumet = new Zoro();
-const apiUrl = 'https://aniwatch-api-ch0nker.vercel.app'
+const consumet = new Gogoanime();
 
 export const getEpisodeUrl = async (
   animeTitles: string[],
   index: number,
   episode: number,
   dubbed: boolean,
+  releaseDate: number,
 ): Promise<IVideo[] | null> => {
   console.log(
     `%c Episode ${episode}, looking for ${consumet.name} source...`,
@@ -24,7 +23,8 @@ export const getEpisodeUrl = async (
       animeSearch,
       index,
       episode,
-      dubbed
+      dubbed,
+      releaseDate,
     );
     if (result) {
       return result;
@@ -47,6 +47,7 @@ async function searchEpisodeUrl(
   index: number,
   episode: number,
   dubbed: boolean,
+  releaseDate: number,
 ): Promise<IVideo[] | null> {
   const cacheId = getCacheId(animeSearch, episode, dubbed);
 
@@ -57,58 +58,18 @@ async function searchEpisodeUrl(
     index,
     dubbed ? `${animeSearch} (Dub)` : animeSearch,
     dubbed,
+    releaseDate,
   );
 
   if (animeId) {
     const animeEpisodeId = await getAnimeEpisodeId(animeId, episode);
-    console.log('episodeId',animeEpisodeId)
     if (animeEpisodeId) {
-      try {
-        const data = await consumet.fetchEpisodeSources(animeEpisodeId);
-        console.log(`%c ${animeSearch}`, `color: #45AD67`);
-        return (
-          cache.search[cacheId] = data.sources.map((value) => {
-              value.tracks = data.subtitles;
-              value.skipEvents = {
-                intro: data.intro,
-                outro: data.outro
-              };
-
-              return value;
-          }) ?? null
-        );
-      } catch {
-        /* consumet fails to get raw servers so this needed. damn */
-        const episodeId = animeEpisodeId.replace('$episode$', '?ep=').split('$')[0];
-
-        const servers = (await axios.get(
-          `${apiUrl}/anime/servers?episodeId=${episodeId}`
-        )).data;
-        const episodeInfo = await axios.get(
-          `${apiUrl}/anime/episode-srcs?id=${episodeId}&server=hd-1&category=${dubbed ?
-            'dub' :
-            servers.sub.length > 0 ? 'sub' : 'raw'
-          }`
-        );
-
-        return (
-          cache.search[cacheId] = (episodeInfo.data.sources as IVideo[]).map((value) => {
-              value.tracks = (episodeInfo.data.tracks as any[]).map(value => ({
-                url: value.file,
-                lang: value.label
-              }));
-
-              value.skipEvents = {
-                intro: episodeInfo.data.intro,
-                outro: episodeInfo.data.outro
-              };
-
-              console.log(value.tracks)
-
-              return value;
-          }) ?? null
-        )
-      }
+      const data = await consumet.fetchEpisodeSources(animeEpisodeId);
+      console.log(`%c ${animeSearch}`, `color: #45AD67`);
+      const result = (
+        cache.search[cacheId] = data.sources
+      );
+      return result;
     }
   }
 
@@ -127,6 +88,7 @@ export const getAnimeId = async (
   index: number,
   animeSearch: string,
   dubbed: boolean,
+  releaseDate: number,
 ): Promise<string | null> => {
   if(cache.animeIds[animeSearch] !== undefined)
     return cache.animeIds[animeSearch];
@@ -139,13 +101,10 @@ export const getAnimeId = async (
       : !(result.title as string).includes('(Dub)'),
   );
 
-  const normalizedSearch = animeSearch.toLowerCase();
-
   const result = (
     cache.animeIds[animeSearch] = filteredResults.filter(
-      result =>
-        (result.title.toString()).toLowerCase() === normalizedSearch ||
-        (result.japaneseTitle.toString()).toLowerCase() === normalizedSearch
+      (result) => result.releaseDate == releaseDate.toString() ||
+        result.title == animeSearch,
     )[index]?.id ?? null
   );
 

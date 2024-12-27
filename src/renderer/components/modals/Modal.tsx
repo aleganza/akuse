@@ -1,15 +1,17 @@
 import './styles/Modal.css';
 
-import { useEffect, useState } from 'react';
-import { Property } from 'csstype';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Property } from 'csstype';
+import { useEffect, useState } from 'react';
+
 export const ModalPage: React.FC<{
   show: boolean;
   modalRef?: React.RefObject<HTMLDivElement>;
   closeModal: () => void;
   children: React.ReactNode;
-}> = ({ show, modalRef = null, closeModal, children }) => {
+  zIndex?: number;
+}> = ({ show, modalRef = null, closeModal, children, zIndex }) => {
   const [animation, setAnimation] = useState<boolean>(show);
   const [isVisible, setIsVisible] = useState<boolean>(show);
 
@@ -52,7 +54,7 @@ export const ModalPage: React.FC<{
   return (
     <div
       className={`modal-page-wrapper fade-in ${animation ? 'show-page' : 'hide-page'}`}
-      style={{ display: isVisible ? 'flex' : 'none' }}
+      style={{ display: isVisible ? 'flex' : 'none', zIndex }}
       onClick={handleClickOutside}
       ref={modalRef}
     >
@@ -63,7 +65,8 @@ export const ModalPage: React.FC<{
 
 export const ModalPageShadow: React.FC<{
   show: boolean;
-}> = ({ show }) => {
+  zIndex?: number;
+}> = ({ show, zIndex }) => {
   const [animation, setAnimation] = useState<boolean>(show);
   const [isVisible, setIsVisible] = useState<boolean>(show);
 
@@ -84,7 +87,7 @@ export const ModalPageShadow: React.FC<{
   return (
     <div
       className={`modal-page-shadow-background ${animation ? 'show-page' : 'hide-page'}-shadow-background`}
-      style={{ display: isVisible ? 'flex' : 'none' }}
+      style={{ display: isVisible ? 'flex' : 'none', zIndex }}
     />
   );
 };

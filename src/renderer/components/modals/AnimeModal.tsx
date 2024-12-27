@@ -1,7 +1,14 @@
 import './styles/AnimeModal.css';
 
 import { IVideo } from '@consumet/extensions';
-import { faCircleExclamation, faStar, faTv, faVolumeHigh, faVolumeXmark, faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCircleExclamation,
+  faStar,
+  faTv,
+  faVolumeHigh,
+  faVolumeXmark,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import Store from 'electron-store';
@@ -12,7 +19,11 @@ import toast, { Toaster } from 'react-hot-toast';
 import { EPISODES_INFO_URL } from '../../../constants/utils';
 import { getAnimeInfo } from '../../../modules/anilist/anilistApi';
 import { getAnimeHistory, setAnimeHistory } from '../../../modules/history';
-import { getUniversalEpisodeUrl } from '../../../modules/providers/api';
+import {
+  getSourceFromProvider,
+  getUniversalEpisodeUrl,
+  searchAnimeInProvider,
+} from '../../../modules/providers/api';
 import {
   capitalizeFirstLetter,
   getParsedFormat,
@@ -24,7 +35,11 @@ import {
   relationsToListAnimeData,
 } from '../../../modules/utils';
 import { ListAnimeData } from '../../../types/anilistAPITypes';
-import { MediaFormat, MediaTypes, RelationTypes } from '../../../types/anilistGraphQLTypes';
+import {
+  MediaFormat,
+  MediaTypes,
+  RelationTypes,
+} from '../../../types/anilistGraphQLTypes';
 import { EpisodeInfo } from '../../../types/types';
 import AnimeSections from '../AnimeSections';
 import { ButtonCircle } from '../Buttons';
@@ -39,6 +54,7 @@ import {
 } from './AnimeModalElements';
 import EpisodesSection from './EpisodesSection';
 import { ModalPage, ModalPageShadow } from './Modal';
+import AutomaticProviderSearchModal from './AutomaticProviderSearchModal';
 
 const modalsRoot = document.getElementById('modals-root');
 const STORE = new Store();
@@ -69,6 +85,14 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
   const [episodesInfoHasFetched, setEpisodesInfoHasFetched] =
     useState<boolean>(false);
   const [episodesInfo, setEpisodesInfo] = useState<EpisodeInfo[]>();
+
+  // before player: search provider matching
+  const [showAutomaticProviderSerchModal, setShowAutomaticProviderSerchModal] =
+    useState<boolean>(false);
+  const [automaticProviderSearchLoading, setAutomaticProviderSearchLoading] =
+    useState<boolean>(false);
+  const [automaticProviderSearchData, setAutomaticProviderSearchData] =
+    useState<any>();
 
   // player
   const [showPlayer, setShowPlayer] = useState<boolean>(false);
@@ -275,27 +299,32 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
     }
   };
 
-  const playEpisode = async (episode: number) => {
+  // automatic anilist-provider matching search
+  const searchMatch = async (episode: number) => {
+    setAnimeEpisodeNumber(episode);
+    setAutomaticProviderSearchData(undefined);
+    setShowAutomaticProviderSerchModal(true);
+    setAutomaticProviderSearchLoading(true);
+
+    const providerResult = await searchAnimeInProvider(listAnimeData, episode);
+    setAutomaticProviderSearchData(providerResult);
+
+    setAutomaticProviderSearchLoading(false);
+  };
+
+  const playEpisode = async () => {
     if (trailerRef.current) trailerRef.current.pause();
     setShowPlayer(true);
+
     setLoading(true);
-    setAnimeEpisodeNumber(episode);
 
-    getUniversalEpisodeUrl(listAnimeData, episode).then((data) => {
-      if (!data) {
-        toast(`Source not found.`, {
-          style: {
-            color: style.getPropertyValue('--font-2'),
-            backgroundColor: style.getPropertyValue('--color-3'),
-          },
-          icon: '❌',
-        });
+    await getSourceFromProvider(automaticProviderSearchData.id, animeEpisodeNumber).then((video) => {
+      if (!video) {
         setLoading(false);
-
         return;
       }
-      setPlayerIVideo(data);
-    });
+      setPlayerIVideo(video);
+    })
   };
 
   const handleLocalProgressChange = (localProgress: number) => {
@@ -317,6 +346,17 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
 
   return ReactDOM.createPortal(
     <>
+      <AutomaticProviderSearchModal
+        show={showAutomaticProviderSerchModal}
+        onClose={() => {
+          setShowAutomaticProviderSerchModal(false);
+        }}
+        animeId={automaticProviderSearchData?.id}
+        animeCover={automaticProviderSearchData?.cover}
+        loading={automaticProviderSearchLoading}
+        onPlay={playEpisode}
+      />
+
       {showPlayer && (
         <VideoPlayer
           video={playerIVideo}
@@ -330,6 +370,7 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
           onClose={handlePlayerClose}
         />
       )}
+
       <ModalPageShadow show={show} />
       <ModalPage modalRef={ref} show={show} closeModal={closeModal}>
         <div className="anime-page" onClick={handleClickOutside}>
@@ -342,7 +383,7 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
               <AnimeModalWatchButtons
                 listAnimeData={listAnimeData}
                 localProgress={localProgress}
-                onPlay={playEpisode}
+                onPlay={searchMatch}
                 loading={false} // loading disabled
               />
 
@@ -445,7 +486,7 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
               episodesInfoHasFetched={episodesInfoHasFetched}
               listAnimeData={listAnimeData}
               loading={loading}
-              onPlay={playEpisode}
+              onPlay={searchMatch}
             />
             {((relatedAnime && relatedAnime.length > 0) ||
               (recommendedAnime && recommendedAnime.length > 0)) && (
