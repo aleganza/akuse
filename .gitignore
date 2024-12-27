@@ -1,3 +1,4 @@
+.env
 src/modules/clientData.ts
 dist
 
