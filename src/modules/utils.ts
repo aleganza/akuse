@@ -203,7 +203,9 @@ export const getAvailableEpisodes = (animeEntry: Media) =>
   animeEntry.nextAiringEpisode == null
     ? animeEntry.episodes == null
       ? animeEntry.airingSchedule?.edges &&
-        animeEntry.airingSchedule?.edges[0].node?.episode
+        animeEntry.airingSchedule?.edges[
+          animeEntry.airingSchedule.edges.length - 1
+        ]?.node?.episode
       : animeEntry.episodes
     : animeEntry.nextAiringEpisode.episode - 1;
 
