@@ -17,11 +17,9 @@ interface Option {
 }
 
 export const LANGUAGE_OPTIONS: Option[] = [
-  { value: 'INT', label: '🌍 Universal ' },
-  { value: 'US', label: '🇺🇸 English' },
-  { value: 'IT', label: '🇮🇹 Italian' },
-  // { value: 'ES', label: '🇪🇸 Spanish' },
-  // { value: 'HU', label: '🇭🇺 Hungarian' },
+  { value: 'GOGOANIME', label: '🇺🇸 Gogoanime ' },
+  { value: 'ANIX', label: '🇺🇸 Anix' },
+  { value: 'ANIMEUNITY', label: '🇮🇹 AnimeUnity' },
 ];
 
 const Element: React.FC<{

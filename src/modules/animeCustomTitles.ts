@@ -17,13 +17,11 @@ type AnimeCustomTitles = {
 };
 
 export const animeCustomTitles: AnimeCustomTitles = {
-  US: {
+  GOGOANIME: {
     // '235': { title: `Detective Conan Remastered`, index: 0 },
     '132052': { title: 'Kakkou no Iinazuke', index: 1 }, // same releaseDate with another one
     '168623': { title: 'Dahlia in Bloom', index: 0 }, // anilist has wrong name (Madougushi Dahlia wa Utsumukanai -> Madougushi Dahliya wa Utsumukanai)
   },
-  INT: {},
-  IT: {},
-  ES: {},
-  HU: {},
+  ANIX: {},
+  ANIMEUNITY: {},
 };

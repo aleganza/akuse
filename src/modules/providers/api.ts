@@ -3,12 +3,9 @@ import Store from 'electron-store';
 
 import { ListAnimeData } from '../../types/anilistAPITypes';
 import { animeCustomTitles } from '../animeCustomTitles';
-import { getAvailableEpisodes, getEpisodes, getParsedAnimeTitles } from '../utils';
-import { getEpisodeUrl as animedrive } from './animedrive';
+import { getParsedAnimeTitles } from '../utils';
 import { getEpisodeUrl as animeunity } from './animeunity';
-import { getEpisodeUrl as monoschinos } from './monoschinos';
 import { getEpisodeUrl as gogoanime } from './gogoanime';
-import { getEpisodeUrl as hianime } from './hianime';
 
 const STORE = new Store();
 
@@ -34,17 +31,7 @@ export const getUniversalEpisodeUrl = async (
   console.log(lang + ' ' + dubbed + ' ' + customTitle?.title);
 
   switch (lang) {
-    case 'INT': {
-      const data = await hianime(
-        animeTitles,
-        customTitle ? customTitle.index : 0,
-        episode,
-        dubbed
-      );
-
-      return data ? getDefaultQualityVideo(data) : null;
-    }
-    case 'US': {
+    case 'GOGOANIME': {
       const data = await gogoanime(
         animeTitles,
         customTitle ? customTitle.index : 0,
@@ -54,33 +41,13 @@ export const getUniversalEpisodeUrl = async (
       );
       return data ? getDefaultQualityVideo(data) : null;
     }
-    case 'IT': {
+    case 'ANIMEUNITY': {
       const data = await animeunity(
         animeTitles,
         customTitle ? customTitle.index : 0,
         episode,
         dubbed,
         listAnimeData.media.startDate?.year ?? 0,
-      );
-      return data ? getDefaultQualityVideo(data) : null;
-    }
-    case 'ES': {
-      const data = await monoschinos(
-        animeTitles,
-        customTitle ? customTitle.index : 0,
-        episode,
-        dubbed,
-        listAnimeData.media.startDate?.year ?? 0,
-        getAvailableEpisodes(listAnimeData.media) ?? undefined
-      );
-      return data ? getDefaultQualityVideo(data) : null;
-    }
-    case 'HU': {
-      const data = await animedrive(
-        animeTitles,
-        customTitle ? customTitle.index : 0,
-        episode,
-        dubbed,
       );
       return data ? getDefaultQualityVideo(data) : null;
     }
