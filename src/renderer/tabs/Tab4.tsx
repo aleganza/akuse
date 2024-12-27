@@ -18,8 +18,9 @@ interface Option {
 
 export const LANGUAGE_OPTIONS: Option[] = [
   { value: 'GOGOANIME', label: '🇺🇸 Gogoanime ' },
-  { value: 'ANIX', label: '🇺🇸 Anix' },
+  { value: 'HIANIME', label: '🇺🇸 HiAnime' }, // zoro from consumet
   { value: 'ANIMEUNITY', label: '🇮🇹 AnimeUnity' },
+  // { value: 'ANIX', label: '🇺🇸 Anix' }, needs working proxy
 ];
 
 const Element: React.FC<{
@@ -266,7 +267,7 @@ const Tab4: React.FC<{ viewerId: number | null }> = ({ viewerId }) => {
               options={LANGUAGE_OPTIONS}
               zIndex={5}
               onChange={handleLanguageChange}
-              width={145}
+              width={160}
             />
 
             <CheckboxElement

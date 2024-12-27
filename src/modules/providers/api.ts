@@ -1,12 +1,16 @@
-import { IVideo } from '@consumet/extensions';
-import Store from 'electron-store';
 import 'dotenv/config';
+
+import { IVideo } from '@consumet/extensions';
+import axios from 'axios';
+import Store from 'electron-store';
+
 import { ListAnimeData } from '../../types/anilistAPITypes';
 import { animeCustomTitles } from '../animeCustomTitles';
 import { getParsedAnimeTitles } from '../utils';
 import AnimeUnityApi from './animeunity';
-import { getEpisodeUrl as gogoanime } from './gogoanime';
-import axios from 'axios';
+import AnixApi from './anix';
+import GogoanimeApi from './gogoanime';
+import HiAnimeAPI from './hianime';
 
 const STORE = new Store();
 
@@ -28,16 +32,36 @@ export const searchAnimeInProvider = async (
   console.log(lang + ' ' + dubbed + ' ' + customTitle?.title);
 
   switch (lang) {
-    // case 'GOGOANIME': {
-    //   const data = await gogoanime(
-    //     animeTitles,
-    //     customTitle ? customTitle.index : 0,
-    //     episode,
-    //     dubbed,
-    //     listAnimeData.media.startDate?.year ?? 0,
-    //   );
-    //   return data ? getDefaultQualityVideo(data) : null;
-    // }
+    case 'HIANIME': {
+      const api = new HiAnimeAPI();
+      return await api.searchInProvider(
+        animeTitles,
+        customTitle ? customTitle.index : 0,
+        episode,
+        dubbed,
+        listAnimeData.media.startDate?.year ?? 0,
+      );
+    }
+    case 'ANIX': {
+      const api = new AnixApi();
+      return await api.searchInProvider(
+        animeTitles,
+        customTitle ? customTitle.index : 0,
+        episode,
+        dubbed,
+        listAnimeData.media.startDate?.year ?? 0,
+      );
+    }
+    case 'GOGOANIME': {
+      const api = new GogoanimeApi();
+      return await api.searchInProvider(
+        animeTitles,
+        customTitle ? customTitle.index : 0,
+        episode,
+        dubbed,
+        listAnimeData.media.startDate?.year ?? 0,
+      );
+    }
     case 'ANIMEUNITY': {
       const api = new AnimeUnityApi();
       return await api.searchInProvider(
@@ -60,11 +84,29 @@ export const getSourceFromProvider = async (
   const lang = (await STORE.get('source_flag')) as string;
 
   switch (lang) {
+    case 'HIANIME': {
+      const api = new HiAnimeAPI();
+      const source = await api.getEpisodeSource(providerAnimeId, episode);
+
+      return source;
+    }
+    case 'ANIX': {
+      const api = new AnixApi();
+      const source = await api.getEpisodeSource(providerAnimeId, episode);
+
+      return source;
+    }
+    case 'GOGOANIME': {
+      const api = new GogoanimeApi();
+      const source = await api.getEpisodeSource(providerAnimeId, episode);
+
+      return source;
+    }
     case 'ANIMEUNITY': {
       const api = new AnimeUnityApi();
-      const video = await api.getEpisodeSource(providerAnimeId, episode);
+      const source = await api.getEpisodeSource(providerAnimeId, episode);
 
-      return video !== null ? getBestQualityVideo(video) : null;
+      return source;
     }
   }
 
@@ -132,23 +174,4 @@ export const getUniversalEpisodeUrl = async (
   // }
 
   return null;
-};
-
-const getDefaultQualityVideo = (videos: IVideo[]): IVideo =>
-  videos.find((video) => video.quality === 'default') ??
-  getBestQualityVideo(videos);
-
-const getBestQualityVideo = (videos: IVideo[]): IVideo => {
-  const qualityOrder = ['1080p', '720p', '480p', '360p', 'default', 'backup'];
-
-  videos.sort((a, b) => {
-    const indexA = qualityOrder.indexOf(a.quality || 'default');
-    const indexB = qualityOrder.indexOf(b.quality || 'default');
-
-    if (indexA < indexB) return -1;
-    if (indexA > indexB) return 1;
-    return 0;
-  });
-
-  return videos[0];
 };

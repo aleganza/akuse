@@ -29,7 +29,11 @@ const EpisodesSection: React.FC<EpisodesSectionProps> = ({
   const [searchValue, setSearchValue] = useState<string>('');
   const [widenInput, setWidenInput] = useState<boolean>(false);
   const episodes = getAvailableEpisodes(listAnimeData.media) ?? 0;
-  const history_entry = getAnimeHistory((listAnimeData.media.id || listAnimeData.media.mediaListEntry && listAnimeData.media.mediaListEntry.id) as number);
+  const history_entry = getAnimeHistory(
+    (listAnimeData.media.id ||
+      (listAnimeData.media.mediaListEntry &&
+        listAnimeData.media.mediaListEntry.id)) as number,
+  );
 
   const getEpisodesArray = () => {
     const EPISODES_PER_PAGE = store.get('episodes_per_page') as number;
@@ -91,46 +95,49 @@ const EpisodesSection: React.FC<EpisodesSectionProps> = ({
               {(pages[activeSection] ?? []).map((episode, index) => {
                 const entry = history_entry?.history[episode];
                 const duration = entry?.duration ?? 0;
-                const episode_progress = (entry !== undefined ? entry.time / duration : 0) * 100;
+                const episode_progress =
+                  (entry !== undefined ? entry.time / duration : 0) * 100;
 
-                return <EpisodeEntry
-                  onPress={() => {
-                    onPlay(episode);
-                  }}
-                  progress={episode_progress}
-                  key={index}
-                  hasInfoLoaded={episodesInfoHasFetched}
-                  number={episodesInfo ? `Ep: ${episode} - ` : ''}
-                  cover={
-                    episodesInfo
-                      ? (episodesInfo[episode]?.image ??
-                        listAnimeData.media.bannerImage ??
-                        '')
-                      : (listAnimeData.media.bannerImage ?? '')
-                  }
-                  title={
-                    episodesInfo && episodesInfo[episode]?.title
-                      ? (episodesInfo[episode]?.title?.en ??
-                        `Episode ${episode}`)
-                      : `Episode ${episode}`
-                  }
-                  description={
-                    episodesInfo
-                      ? (episodesInfo[episode]?.summary ??
-                        'No description available.')
-                      : 'No description available.'
-                  }
-                  releaseDate={
-                    episodesInfo
-                      ? (parseAirdate(episodesInfo[episode]?.airdate || '') ??
-                        '')
-                      : ''
-                  }
-                  duration={
-                    episodesInfo ? `${episodesInfo[episode]?.length}min` : ''
-                  }
-                  loading={loading}
-                />
+                return (
+                  <EpisodeEntry
+                    onPress={() => {
+                      onPlay(episode);
+                    }}
+                    progress={episode_progress}
+                    key={index}
+                    hasInfoLoaded={episodesInfoHasFetched}
+                    number={episodesInfo ? `Ep: ${episode} - ` : ''}
+                    cover={
+                      episodesInfo
+                        ? (episodesInfo[episode]?.image ??
+                          listAnimeData.media.bannerImage ??
+                          '')
+                        : (listAnimeData.media.bannerImage ?? '')
+                    }
+                    title={
+                      episodesInfo && episodesInfo[episode]?.title
+                        ? (episodesInfo[episode]?.title?.en ??
+                          `Episode ${episode}`)
+                        : `Episode ${episode}`
+                    }
+                    description={
+                      episodesInfo
+                        ? (episodesInfo[episode]?.summary ??
+                          'No description available.')
+                        : 'No description available.'
+                    }
+                    releaseDate={
+                      episodesInfo
+                        ? (parseAirdate(episodesInfo[episode]?.airdate || '') ??
+                          '')
+                        : ''
+                    }
+                    duration={
+                      episodesInfo ? `${episodesInfo[episode]?.length}min` : ''
+                    }
+                    loading={loading}
+                  />
+                );
               })}
             </div>
           </>

@@ -23,5 +23,6 @@ export const animeCustomTitles: AnimeCustomTitles = {
     '168623': { title: 'Dahlia in Bloom', index: 0 }, // anilist has wrong name (Madougushi Dahlia wa Utsumukanai -> Madougushi Dahliya wa Utsumukanai)
   },
   ANIX: {},
+  HIANIME: {},
   ANIMEUNITY: {},
 };

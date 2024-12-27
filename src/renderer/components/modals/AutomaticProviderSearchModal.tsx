@@ -14,10 +14,10 @@ const AutomaticProviderSearchModal: React.FC<{
   show: boolean;
   onClose: () => void;
   animeId?: string;
-  animeCover?: string;
+  animeImage?: string;
   loading: boolean;
   onPlay: () => void;
-}> = ({ show, onClose, animeId, animeCover, loading, onPlay }) => {
+}> = ({ show, onClose, animeId, animeImage, loading, onPlay }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   const handlePlayClick = () => {
@@ -59,7 +59,7 @@ const AutomaticProviderSearchModal: React.FC<{
                     <strong>Title: </strong>
                     {animeId}
                   </p>
-                  {animeCover && <img src={animeCover} alt="anime cover" />}
+                  {animeImage && <img src={animeImage} alt="anime image" />}
                 </>
               )}
 

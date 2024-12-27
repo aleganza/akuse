@@ -1,12 +1,12 @@
 import './styles/VideoPlayer.css';
 import 'react-activity/dist/Dots.css';
 
-import { ISubtitle, IVideo } from '@consumet/extensions';
+import { ISource, ISubtitle, IVideo } from '@consumet/extensions';
 import { faFastForward } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { ipcRenderer } from 'electron';
 import Store from 'electron-store';
-import Hls from 'hls.js';
+import Hls, { HlsConfig } from 'hls.js';
 import { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import toast, { Toaster } from 'react-hot-toast';
@@ -48,7 +48,7 @@ const debounce = (id: string, func: () => void, delay: number) => {
 };
 
 const VideoPlayer: React.FC<{
-  video: IVideo | null;
+  source: ISource | null;
   listAnimeData: ListAnimeData;
   episodesInfo?: EpisodeInfo[];
   animeEpisodeNumber: number;
@@ -61,7 +61,7 @@ const VideoPlayer: React.FC<{
   onChangeLoading: (value: boolean) => void;
   onClose: () => void;
 }> = ({
-  video,
+  source,
   listAnimeData,
   episodesInfo,
   animeEpisodeNumber,
@@ -309,8 +309,9 @@ const VideoPlayer: React.FC<{
   };
 
   useEffect(() => {
-    if (video !== null) {
-      playSource(video);
+    if (source !== null) {
+      const bestVideo = getBestQualityVideo(source.sources);
+      playSource(bestVideo, source.headers);
 
       // resume from tracked progress
       const animeId = (listAnime.media.id ||
@@ -337,9 +338,9 @@ const VideoPlayer: React.FC<{
 
       setShowNextEpisodeButton(canNextEpisode(animeEpisodeNumber));
       setShowPreviousEpisodeButton(canPreviousEpisode(animeEpisodeNumber));
-      getSkipEvents(animeEpisodeNumber, video);
+      getSkipEvents(animeEpisodeNumber, bestVideo);
     }
-  }, [video, listAnime]);
+  }, [source, listAnime]);
 
   const setSubtitleTrack = (subtitleTrack: ISubtitle) => {
     if (!videoRef.current) return;
@@ -358,9 +359,24 @@ const VideoPlayer: React.FC<{
     track.track.mode = 'showing';
   };
 
-  const playSource = (video: IVideo) => {
+  const getBestQualityVideo = (videos: IVideo[]): IVideo => {
+    const qualityOrder = ['1080p', '720p', '480p', '360p', 'default', 'backup'];
+
+    videos.sort((a, b) => {
+      const indexA = qualityOrder.indexOf(a.quality || 'default');
+      const indexB = qualityOrder.indexOf(b.quality || 'default');
+
+      if (indexA < indexB) return -1;
+      if (indexA > indexB) return 1;
+      return 0;
+    });
+
+    return videos[0];
+  };
+
+  const playSource = (video: IVideo, headers?: any) => {
     if (video.isM3U8) {
-      playHlsVideo(video);
+      playHlsVideo(video, headers);
     } else {
       if (videoRef.current) {
         videoRef.current.src = video.url;
@@ -368,10 +384,21 @@ const VideoPlayer: React.FC<{
     }
   };
 
-  const playHlsVideo = (video: IVideo) => {
+  const playHlsVideo = (video: IVideo, headers?: any) => {
     const url = video.url;
     try {
       if (Hls.isSupported() && videoRef.current) {
+        // append headers if needed
+        // const hlsConfig: Partial<HlsConfig> = headers
+        // ? {
+        //     xhrSetup: (xhr, url) => {
+        //       Object.entries(headers).forEach(([key, value]) => {
+        //         xhr.setRequestHeader(key, value as any);
+        //       });
+        //     },
+        //   }
+        // : {};
+
         var hls = new Hls();
         hls.loadSource(url);
         if (video.tracks) {
@@ -708,7 +735,7 @@ const VideoPlayer: React.FC<{
   };
 
   const handleDropdownToggle = (isDropdownOpen: boolean) => {
-    console.log(isDropdownOpen);
+    // console.log(isDropdownOpen);
     setIsDropdownOpen(isDropdownOpen);
   };
 

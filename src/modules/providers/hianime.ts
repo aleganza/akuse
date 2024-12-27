@@ -1,13 +1,14 @@
-import { ISource, IVideo } from '@consumet/extensions';
+import { ISource } from '@consumet/extensions';
+
 import { SOFAMAXXING_URL } from '../../constants/utils';
 import { getCacheId } from '../utils';
 import { apiRequest } from './api';
 import ProviderCache from './cache';
 
-const api = `${SOFAMAXXING_URL}/animeunity`;
+const api = `${SOFAMAXXING_URL}/zoro`;
 const cache = new ProviderCache();
 
-class AnimeUnityApi {
+class HiAnimeAPI {
   /**
    *
    * @returns animeId from provider
@@ -20,8 +21,8 @@ class AnimeUnityApi {
     releaseDate: number,
   ) => {
     console.log(
-      `%c Episode ${episode}, looking for AnimeUnity match...`,
-      `color: #0c7475`,
+      `%c Episode ${episode}, looking for HiAnime match...`,
+      `color: #ffbade`,
     );
 
     // start searching
@@ -33,20 +34,14 @@ class AnimeUnityApi {
         return cache.animeIds[animeSearch];
 
       // search anime (per dub too)
-      const searchResults = await apiRequest(
-        `${api}/${dubbed ? `${animeSearch} (ITA)` : animeSearch}`,
-      );
-      const filteredResults = searchResults.results.filter((result: any) =>
-        dubbed
-          ? (result.title as string).includes('(ITA)')
-          : !(result.title as string).includes('(ITA)'),
-      );
+      const searchResults = await apiRequest(`${api}/${animeSearch}`);
+      // how to check dub???
 
       // find the best result: first check for same name,
       // then check for same release date.
       // finally, update cache
       const animeResult = (cache.animeIds[animeSearch] =
-        filteredResults.filter(
+        searchResults.results.filter(
           (result: any) =>
             result.title.toLowerCase().trim() ==
               animeSearch.toLowerCase().trim() ||
@@ -65,9 +60,7 @@ class AnimeUnityApi {
     //     return found.id;
     // }
 
-    const animeInfo = await apiRequest(
-      `${api}/info/${animeId}?page=${episode > 120 ? Math.floor(episode / 120) + 1 : 1}`,
-    );
+    const animeInfo = await apiRequest(`${api}/info/${animeId}`);
 
     const episodeId =
       (cache.episodes[animeId] = animeInfo?.episodes)?.find(
@@ -84,4 +77,4 @@ class AnimeUnityApi {
   };
 }
 
-export default AnimeUnityApi;
+export default HiAnimeAPI;

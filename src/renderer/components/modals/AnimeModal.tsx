@@ -1,6 +1,6 @@
 import './styles/AnimeModal.css';
 
-import { IVideo } from '@consumet/extensions';
+import { ISource, IVideo } from '@consumet/extensions';
 import {
   faCircleExclamation,
   faStar,
@@ -97,7 +97,7 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
   // player
   const [showPlayer, setShowPlayer] = useState<boolean>(false);
   const [animeEpisodeNumber, setAnimeEpisodeNumber] = useState<number>(0);
-  const [playerIVideo, setPlayerIVideo] = useState<IVideo | null>(null);
+  const [playerISource, setPlayerISource] = useState<ISource | null>(null);
 
   // other
   const [localProgress, setLocalProgress] = useState<number>();
@@ -184,7 +184,7 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
 
   useEffect(() => {
     if (!showPlayer) {
-      setPlayerIVideo(null);
+      setPlayerISource(null);
     }
   }, [showPlayer]);
 
@@ -313,17 +313,20 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
   };
 
   const playEpisode = async () => {
+    console.log('play!')
     if (trailerRef.current) trailerRef.current.pause();
     setShowPlayer(true);
 
     setLoading(true);
 
+    console.log('before video')
     await getSourceFromProvider(automaticProviderSearchData.id, animeEpisodeNumber).then((video) => {
+      console.log(video)
       if (!video) {
         setLoading(false);
         return;
       }
-      setPlayerIVideo(video);
+      setPlayerISource(video);
     })
   };
 
@@ -352,14 +355,14 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
           setShowAutomaticProviderSerchModal(false);
         }}
         animeId={automaticProviderSearchData?.id}
-        animeCover={automaticProviderSearchData?.cover}
+        animeImage={automaticProviderSearchData?.image}
         loading={automaticProviderSearchLoading}
         onPlay={playEpisode}
       />
 
       {showPlayer && (
         <VideoPlayer
-          video={playerIVideo}
+          source={playerISource}
           listAnimeData={listAnimeData}
           episodesInfo={episodesInfo}
           animeEpisodeNumber={animeEpisodeNumber}
