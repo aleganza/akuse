@@ -13,10 +13,18 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Store from 'electron-store';
 import Hls from 'hls.js';
-import React, { ChangeEvent, forwardRef, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  forwardRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Dots from 'react-activity/dist/Dots';
 
 import Select from '../Select';
+import { LANGUAGE_OPTIONS } from '../../tabs/Tab4';
 
 const STORE = new Store();
 
@@ -192,6 +200,14 @@ const VideoSettings = forwardRef<HTMLDivElement, SettingsProps>(
         </button>
         {show && (
           <div ref={ref} className="dropdown">
+            <span>
+              {
+                LANGUAGE_OPTIONS.find(
+                  (l) => l.value == (STORE.get('source_flag') as string),
+                )?.label
+              }{' '}
+              {(STORE.get('dubbed') as boolean) ? 'DUB' : 'SUB'}
+            </span>
             <li className="quality">
               <span>
                 <FontAwesomeIcon className="i label" icon={faVideo} />
