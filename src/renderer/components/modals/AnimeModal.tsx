@@ -1,14 +1,7 @@
 import './styles/AnimeModal.css';
 
-import { ISource, IVideo } from '@consumet/extensions';
-import {
-  faCircleExclamation,
-  faStar,
-  faTv,
-  faVolumeHigh,
-  faVolumeXmark,
-  faXmark,
-} from '@fortawesome/free-solid-svg-icons';
+import { ISource } from '@consumet/extensions';
+import { faCircleExclamation, faStar, faTv, faVolumeHigh, faVolumeXmark, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import Store from 'electron-store';
@@ -19,11 +12,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { EPISODES_INFO_URL } from '../../../constants/utils';
 import { getAnimeInfo } from '../../../modules/anilist/anilistApi';
 import { getAnimeHistory, setAnimeHistory } from '../../../modules/history';
-import {
-  getSourceFromProvider,
-  getUniversalEpisodeUrl,
-  searchAnimeInProvider,
-} from '../../../modules/providers/api';
+import { getSourceFromProvider } from '../../../modules/providers/api';
 import {
   capitalizeFirstLetter,
   getParsedFormat,
@@ -35,11 +24,7 @@ import {
   relationsToListAnimeData,
 } from '../../../modules/utils';
 import { ListAnimeData } from '../../../types/anilistAPITypes';
-import {
-  MediaFormat,
-  MediaTypes,
-  RelationTypes,
-} from '../../../types/anilistGraphQLTypes';
+import { MediaFormat, MediaTypes, RelationTypes } from '../../../types/anilistGraphQLTypes';
 import { EpisodeInfo } from '../../../types/types';
 import AnimeSections from '../AnimeSections';
 import { ButtonCircle } from '../Buttons';
@@ -52,9 +37,9 @@ import {
   AnimeModalStatus,
   AnimeModalWatchButtons,
 } from './AnimeModalElements';
+import AutomaticProviderSearchModal from './AutomaticProviderSearchModal';
 import EpisodesSection from './EpisodesSection';
 import { ModalPage, ModalPageShadow } from './Modal';
-import AutomaticProviderSearchModal from './AutomaticProviderSearchModal';
 
 const modalsRoot = document.getElementById('modals-root');
 const STORE = new Store();
@@ -89,10 +74,6 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
   // before player: search provider matching
   const [showAutomaticProviderSerchModal, setShowAutomaticProviderSerchModal] =
     useState<boolean>(false);
-  const [automaticProviderSearchLoading, setAutomaticProviderSearchLoading] =
-    useState<boolean>(false);
-  const [automaticProviderSearchData, setAutomaticProviderSearchData] =
-    useState<any>();
 
   // player
   const [showPlayer, setShowPlayer] = useState<boolean>(false);
@@ -302,26 +283,16 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
   // automatic anilist-provider matching search
   const searchMatch = async (episode: number) => {
     setAnimeEpisodeNumber(episode);
-    setAutomaticProviderSearchData(undefined);
     setShowAutomaticProviderSerchModal(true);
-    setAutomaticProviderSearchLoading(true);
-
-    const providerResult = await searchAnimeInProvider(listAnimeData, episode);
-    setAutomaticProviderSearchData(providerResult);
-
-    setAutomaticProviderSearchLoading(false);
   };
 
-  const playEpisode = async () => {
-    console.log('play!')
+  const playEpisode = async (providerAnimeId: string) => {
     if (trailerRef.current) trailerRef.current.pause();
     setShowPlayer(true);
 
     setLoading(true);
 
-    console.log('before video')
-    await getSourceFromProvider(automaticProviderSearchData.id, animeEpisodeNumber).then((video) => {
-      console.log(video)
+    await getSourceFromProvider(providerAnimeId, animeEpisodeNumber).then((video) => {
       if (!video) {
         setLoading(false);
         return;
@@ -354,9 +325,8 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
         onClose={() => {
           setShowAutomaticProviderSerchModal(false);
         }}
-        animeId={automaticProviderSearchData?.id}
-        animeImage={automaticProviderSearchData?.image}
-        loading={automaticProviderSearchLoading}
+        listAnimeData={listAnimeData}
+        episode={animeEpisodeNumber}
         onPlay={playEpisode}
       />
 

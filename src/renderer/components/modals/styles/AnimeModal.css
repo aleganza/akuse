@@ -306,7 +306,6 @@
 }
 
 .anime-page .episodes-section .episode-entry:active {
-  transform: scale(1);
   background-color: var(--color-3);
 }
 

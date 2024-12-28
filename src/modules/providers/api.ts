@@ -14,11 +14,36 @@ import HiAnimeAPI from './hianime';
 
 const STORE = new Store();
 
-export const searchAnimeInProvider = async (
+export const searchInProvider = async (query: string) => {
+  const lang = (await STORE.get('source_flag')) as string;
+  const dubbed = (await STORE.get('dubbed')) as boolean;
+
+  switch (lang) {
+    case 'HIANIME': {
+      const api = new HiAnimeAPI();
+      return await api.searchInProvider(query, dubbed);
+    }
+    case 'ANIX': {
+      const api = new AnixApi();
+      return await api.searchInProvider(query, dubbed);
+    }
+    case 'GOGOANIME': {
+      const api = new GogoanimeApi();
+      return await api.searchInProvider(query, dubbed);
+    }
+    case 'ANIMEUNITY': {
+      const api = new AnimeUnityApi();
+      return await api.searchInProvider(query, dubbed);
+    }
+  }
+
+  return null
+};
+
+export const searchAutomaticMatchInProvider = async (
   listAnimeData: ListAnimeData,
   episode: number,
 ) => {
-  // get land & dubbed flag
   const lang = (await STORE.get('source_flag')) as string;
   const dubbed = (await STORE.get('dubbed')) as boolean;
 
@@ -34,7 +59,7 @@ export const searchAnimeInProvider = async (
   switch (lang) {
     case 'HIANIME': {
       const api = new HiAnimeAPI();
-      return await api.searchInProvider(
+      return await api.searchMatchInProvider(
         animeTitles,
         customTitle ? customTitle.index : 0,
         episode,
@@ -44,7 +69,7 @@ export const searchAnimeInProvider = async (
     }
     case 'ANIX': {
       const api = new AnixApi();
-      return await api.searchInProvider(
+      return await api.searchMatchInProvider(
         animeTitles,
         customTitle ? customTitle.index : 0,
         episode,
@@ -54,7 +79,7 @@ export const searchAnimeInProvider = async (
     }
     case 'GOGOANIME': {
       const api = new GogoanimeApi();
-      return await api.searchInProvider(
+      return await api.searchMatchInProvider(
         animeTitles,
         customTitle ? customTitle.index : 0,
         episode,
@@ -64,7 +89,7 @@ export const searchAnimeInProvider = async (
     }
     case 'ANIMEUNITY': {
       const api = new AnimeUnityApi();
-      return await api.searchInProvider(
+      return await api.searchMatchInProvider(
         animeTitles,
         customTitle ? customTitle.index : 0,
         episode,

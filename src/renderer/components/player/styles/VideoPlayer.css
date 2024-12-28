@@ -453,6 +453,27 @@
   color: var(--font-2);
 }
 
+.up-controls .settings-content .dropdown .provider-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  padding-right: 15px;
+  padding-bottom: 5px;
+  font-weight: 500;
+  height: 30px;
+  font-size: 1rem;
+  color: var(--font-3);
+}
+
+.up-controls .settings-content .dropdown .provider-info .dub {
+  color: var(--font-3);
+  background-color: var(--color-4);
+  padding: 2px 5px;
+  font-size: 0.8rem;
+  border-radius: var(--border-radius);
+}
+
 .up-controls .settings-content .dropdown li .i.label {
   margin-right: 8px;
   width: 30px;

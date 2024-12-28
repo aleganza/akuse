@@ -8,11 +8,16 @@ const api = `${SOFAMAXXING_URL}/anix`;
 const cache = new ProviderCache();
 
 class AnixApi {
+  searchInProvider = async (query: string, dubbed: boolean) => {
+    const searchResults = await apiRequest(`${api}/${query}`);
+    return searchResults.results
+  };
+
   /**
    *
    * @returns animeId from provider
    */
-  searchInProvider = async (
+  searchMatchInProvider = async (
     animeTitles: string[],
     index: number,
     episode: number,

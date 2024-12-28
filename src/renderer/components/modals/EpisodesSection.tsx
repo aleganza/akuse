@@ -1,13 +1,12 @@
+import Store from 'electron-store';
 import { useEffect, useState } from 'react';
 
+import { getAnimeHistory } from '../../../modules/history';
 import { getAvailableEpisodes, parseAirdate } from '../../../modules/utils';
 import { ListAnimeData } from '../../../types/anilistAPITypes';
 import { EpisodeInfo } from '../../../types/types';
-import { History } from '../../../types/historyTypes';
 import Select from '../Select';
 import EpisodeEntry from './EpisodeEntry';
-import Store from 'electron-store';
-import { getAnimeHistory } from '../../../modules/history';
 
 const store = new Store();
 interface EpisodesSectionProps {

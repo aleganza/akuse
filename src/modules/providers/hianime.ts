@@ -9,11 +9,16 @@ const api = `${SOFAMAXXING_URL}/zoro`;
 const cache = new ProviderCache();
 
 class HiAnimeAPI {
+  searchInProvider = async (query: string, dubbed: boolean) => {
+    const searchResults = await apiRequest(`${api}/${query}`);
+    return searchResults.results
+  };
+
   /**
    *
    * @returns animeId from provider
    */
-  searchInProvider = async (
+  searchMatchInProvider = async (
     animeTitles: string[],
     index: number,
     episode: number,

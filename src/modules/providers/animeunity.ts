@@ -8,11 +8,23 @@ const api = `${SOFAMAXXING_URL}/animeunity`;
 const cache = new ProviderCache();
 
 class AnimeUnityApi {
+  searchInProvider = async (query: string, dubbed: boolean) => {
+    const searchResults = await apiRequest(
+      `${api}/${dubbed ? `${query} (ITA)` : query}`,
+    );
+
+    return searchResults.results.filter((result: any) =>
+      dubbed
+        ? (result.title as string).includes('(ITA)')
+        : !(result.title as string).includes('(ITA)'),
+    );
+  }
+
   /**
    *
    * @returns animeId from provider
    */
-  searchInProvider = async (
+  searchMatchInProvider = async (
     animeTitles: string[],
     index: number,
     episode: number,

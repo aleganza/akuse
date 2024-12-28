@@ -200,14 +200,6 @@ const VideoSettings = forwardRef<HTMLDivElement, SettingsProps>(
         </button>
         {show && (
           <div ref={ref} className="dropdown">
-            <span>
-              {
-                LANGUAGE_OPTIONS.find(
-                  (l) => l.value == (STORE.get('source_flag') as string),
-                )?.label
-              }{' '}
-              {(STORE.get('dubbed') as boolean) ? 'DUB' : 'SUB'}
-            </span>
             <li className="quality">
               <span>
                 <FontAwesomeIcon className="i label" icon={faVideo} />
@@ -349,6 +341,16 @@ const VideoSettings = forwardRef<HTMLDivElement, SettingsProps>(
                 </label>
               )}
             </li>
+            {/* <span className="provider-info">
+              {
+                LANGUAGE_OPTIONS.find(
+                  (l) => l.value == (STORE.get('source_flag') as string),
+                )?.label
+              }{' '}
+              <span className="dub">
+                {(STORE.get('dubbed') as boolean) ? 'DUB' : 'SUB'}
+              </span>
+            </span> */}
           </div>
         )}
       </div>

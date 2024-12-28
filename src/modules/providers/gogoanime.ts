@@ -8,11 +8,23 @@ const api = `${SOFAMAXXING_URL}/gogoanime`;
 const cache = new ProviderCache();
 
 class GogoanimeApi {
+  searchInProvider = async (query: string, dubbed: boolean) => {
+    const searchResults = await apiRequest(
+      `${api}/${dubbed ? `${query} (Dub)` : query}`,
+    );
+
+    return searchResults.results.filter((result: any) =>
+      dubbed
+        ? (result.title as string).includes('(Dub)')
+        : !(result.title as string).includes('(Dub)'),
+    );
+  };
+
   /**
    *
    * @returns animeId from provider
    */
-  searchInProvider = async (
+  searchMatchInProvider = async (
     animeTitles: string[],
     index: number,
     episode: number,
