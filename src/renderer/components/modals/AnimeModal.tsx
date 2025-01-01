@@ -81,6 +81,7 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
   const [playerISource, setPlayerISource] = useState<ISource | null>(null);
 
   // other
+  const [providerAnimeId, setProviderAnimeId] = useState<string>()
   const [localProgress, setLocalProgress] = useState<number>();
   const [alternativeBanner, setAlternativeBanner] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -286,18 +287,19 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
     setShowAutomaticProviderSerchModal(true);
   };
 
-  const playEpisode = async (providerAnimeId: string) => {
+  const playEpisode = async (provAnimeId: string) => {
     if (trailerRef.current) trailerRef.current.pause();
+    
     setShowPlayer(true);
-
     setLoading(true);
 
-    await getSourceFromProvider(providerAnimeId, animeEpisodeNumber).then((video) => {
+    await getSourceFromProvider(provAnimeId, animeEpisodeNumber).then((video) => {
       if (!video) {
         setLoading(false);
         return;
       }
       setPlayerISource(video);
+      setProviderAnimeId(provAnimeId)
     })
   };
 
@@ -334,6 +336,7 @@ const AnimeModal: React.FC<AnimeModalProps> = ({
         <VideoPlayer
           source={playerISource}
           listAnimeData={listAnimeData}
+          providerAnimeId={providerAnimeId}
           episodesInfo={episodesInfo}
           animeEpisodeNumber={animeEpisodeNumber}
           show={showPlayer}

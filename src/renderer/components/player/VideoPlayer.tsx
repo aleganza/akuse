@@ -6,7 +6,7 @@ import { faFastForward } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { ipcRenderer } from 'electron';
 import Store from 'electron-store';
-import Hls, { HlsConfig } from 'hls.js';
+import Hls from 'hls.js';
 import { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import toast, { Toaster } from 'react-hot-toast';
@@ -19,7 +19,7 @@ import {
 } from '../../../modules/anilist/anilistApi';
 import AniSkip from '../../../modules/aniskip';
 import { getAnimeHistory, setAnimeHistory } from '../../../modules/history';
-import { getUniversalEpisodeUrl } from '../../../modules/providers/api';
+import { getSourceFromProvider } from '../../../modules/providers/api';
 import {
   getAvailableEpisodes,
   getRandomDiscordPhrase,
@@ -50,6 +50,7 @@ const debounce = (id: string, func: () => void, delay: number) => {
 const VideoPlayer: React.FC<{
   source: ISource | null;
   listAnimeData: ListAnimeData;
+  providerAnimeId?: string;
   episodesInfo?: EpisodeInfo[];
   animeEpisodeNumber: number;
   show: boolean;
@@ -63,6 +64,7 @@ const VideoPlayer: React.FC<{
 }> = ({
   source,
   listAnimeData,
+  providerAnimeId,
   episodesInfo,
   animeEpisodeNumber,
   show,
@@ -823,8 +825,8 @@ const VideoPlayer: React.FC<{
     if (reloadAtPreviousTime && videoRef.current)
       previousTime = videoRef.current?.currentTime;
 
-    const setData = (video: IVideo) => {
-      playSource(video);
+    const setData = (video: IVideo, headers?: any) => {
+      playSource(video, headers);
 
       setEpisodeNumber(episodeToPlay);
       getSkipEvents(episodeToPlay, video);
@@ -851,10 +853,8 @@ const VideoPlayer: React.FC<{
       onChangeLoading(false);
     };
 
-    console.log({ anime, episodeToPlay });
-
-    const data = await getUniversalEpisodeUrl(anime, episodeToPlay);
-    if (!data) {
+    const source = await getSourceFromProvider(providerAnimeId!, episodeToPlay);
+    if (!source) {
       toast(`Source not found.`, {
         style: {
           color: style.getPropertyValue('--font-2'),
@@ -867,7 +867,9 @@ const VideoPlayer: React.FC<{
       return false;
     }
 
-    setData(data);
+    const bestVideo = getBestQualityVideo(source.sources);
+
+    setData(bestVideo, source.headers);
     return true;
   };
 

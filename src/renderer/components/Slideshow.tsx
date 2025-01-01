@@ -1,10 +1,7 @@
 import './styles/Slideshow.css';
 
-import { IVideo } from '@consumet/extensions';
-import {
-  faArrowUpRightFromSquare,
-  faPlay,
-} from '@fortawesome/free-solid-svg-icons';
+import { ISource } from '@consumet/extensions';
+import { faArrowUpRightFromSquare, faPlay } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import DOMPurify from 'dompurify';
 import React, { useEffect, useState } from 'react';
@@ -12,7 +9,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import Skeleton from 'react-loading-skeleton';
 
 import { EPISODES_INFO_URL } from '../../constants/utils';
-import { getUniversalEpisodeUrl } from '../../modules/providers/api';
+import { getSourceFromProvider } from '../../modules/providers/api';
 import {
   capitalizeFirstLetter,
   getAvailableEpisodes,
@@ -24,6 +21,7 @@ import { ListAnimeData } from '../../types/anilistAPITypes';
 import { EpisodeInfo } from '../../types/types';
 import { ButtonMain } from './Buttons';
 import AnimeModal from './modals/AnimeModal';
+import AutomaticProviderSearchModal from './modals/AutomaticProviderSearchModal';
 import VideoPlayer from './player/VideoPlayer';
 
 interface SlideProps {
@@ -35,10 +33,14 @@ interface SlideProps {
 const Slide: React.FC<SlideProps> = ({ listAnimeData, index, isVisible }) => {
   const style = getComputedStyle(document.body);
 
-  const [playerIVideo, setPlayerIVideo] = useState<IVideo | null>(null);
+  const [playerIVideo, setPlayerISource] = useState<ISource | null>(null);
   const [showPlayer, setShowPlayer] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [episodesInfo, setEpisodesInfo] = useState<EpisodeInfo[]>();
+
+  // before player: search provider matching
+  const [showAutomaticProviderSerchModal, setShowAutomaticProviderSerchModal] =
+    useState<boolean>(false);
 
   // whether the modal is shown or not
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -86,27 +88,25 @@ const Slide: React.FC<SlideProps> = ({ listAnimeData, index, isVisible }) => {
       .catch(() => {});
   };
 
-  const handlePressButton = async () => {
+  const searchMatch = async () => {
+    setShowAutomaticProviderSerchModal(true);
+  };
+
+  const playEpisode = async (providerAnimeId: string) => {
     setShowPlayer(true);
     setLoading(true);
 
     await fetchEpisodesInfo();
-    getUniversalEpisodeUrl(listAnimeData, 1).then((data) => {
-      if (!data) {
-        toast(`Source not found.`, {
-          style: {
-            color: style.getPropertyValue('--font-2'),
-            backgroundColor: style.getPropertyValue('--color-3'),
-          },
-          icon: '❌',
-        });
+    await getSourceFromProvider(providerAnimeId, 1).then(
+      (video) => {
+        if (!video) {
+          setLoading(false);
+          return;
+        }
+        setPlayerISource(video);
         setLoading(false);
-
-        return;
-      }
-      setPlayerIVideo(data);
-      setLoading(false);
-    });
+      },
+    );
   };
 
   const handleChangeLoading = (value: boolean) => {
@@ -115,9 +115,19 @@ const Slide: React.FC<SlideProps> = ({ listAnimeData, index, isVisible }) => {
 
   return (
     <>
+      <AutomaticProviderSearchModal
+        show={showAutomaticProviderSerchModal}
+        onClose={() => {
+          setShowAutomaticProviderSerchModal(false);
+        }}
+        listAnimeData={listAnimeData}
+        episode={1}
+        onPlay={playEpisode}
+      />
+
       {showPlayer && (
         <VideoPlayer
-          video={playerIVideo}
+          source={playerIVideo}
           listAnimeData={listAnimeData}
           episodesInfo={episodesInfo}
           animeEpisodeNumber={1}
@@ -173,7 +183,7 @@ const Slide: React.FC<SlideProps> = ({ listAnimeData, index, isVisible }) => {
                 icon={faPlay}
                 tint="primary"
                 shadow
-                onClick={handlePressButton}
+                onClick={searchMatch}
               />
               <ButtonMain
                 text="More info"
@@ -206,10 +216,13 @@ const Slide: React.FC<SlideProps> = ({ listAnimeData, index, isVisible }) => {
 
 interface SlideshowProps {
   listAnimeData?: ListAnimeData[];
-  maxAmount?: number
+  maxAmount?: number;
 }
 
-const Slideshow: React.FC<SlideshowProps> = ({ listAnimeData, maxAmount = 5 }) => {
+const Slideshow: React.FC<SlideshowProps> = ({
+  listAnimeData,
+  maxAmount = 5,
+}) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   const [animeData, setAnimeData] = useState<ListAnimeData[] | undefined>();

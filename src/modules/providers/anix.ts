@@ -10,7 +10,7 @@ const cache = new ProviderCache();
 class AnixApi {
   searchInProvider = async (query: string, dubbed: boolean) => {
     const searchResults = await apiRequest(`${api}/${query}`);
-    return searchResults.results
+    return searchResults.results;
   };
 
   /**
@@ -52,8 +52,10 @@ class AnixApi {
             result.releaseDate == releaseDate.toString(),
         )[index] ?? null);
 
-      return animeResult;
+      if (animeResult) return animeResult;
     }
+
+    return null;
   };
 
   getEpisodeSource = async (animeId: string, episode: number) => {

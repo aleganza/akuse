@@ -18,7 +18,7 @@ class AnimeUnityApi {
         ? (result.title as string).includes('(ITA)')
         : !(result.title as string).includes('(ITA)'),
     );
-  }
+  };
 
   /**
    *
@@ -65,8 +65,10 @@ class AnimeUnityApi {
             result.releaseDate == releaseDate.toString(),
         )[index] ?? null);
 
-      return animeResult;
+      if (animeResult) return animeResult;
     }
+
+    return null;
   };
 
   getEpisodeSource = async (animeId: string, episode: number) => {

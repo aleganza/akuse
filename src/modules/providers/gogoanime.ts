@@ -65,8 +65,10 @@ class GogoanimeApi {
             result.releaseDate == releaseDate.toString(),
         )[index] ?? null);
 
-      return animeResult;
+      if (animeResult) return animeResult;
     }
+
+    return null;
   };
 
   getEpisodeSource = async (animeId: string, episode: number) => {

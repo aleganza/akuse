@@ -255,7 +255,6 @@ export const getAccessToken = async (code: string): Promise<string> => {
   };
 
   const respData = await makeRequest(METHOD, url, HEADERS, data);
-  console.log(respData);
   return respData.access_token;
 };
 
