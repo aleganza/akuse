@@ -15,6 +15,6 @@
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
   "dependencies": {
-    "discord-rpc": "^4.0.1"
+    "@xhayper/discord-rpc": "^1.2.0"
   }
 }
