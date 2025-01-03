@@ -53,16 +53,10 @@ class HiAnimeAPI {
             result.releaseDate == releaseDate.toString(),
         )[index] ?? null);
 
-      searchResults.results.forEach((result: { title: string }) => {
-        console.log(
-          `${result.title.toLowerCase().trim()}\n${animeSearch.toLowerCase().trim()}\n\n`,
-        );
-      });
-
-      if(animeResult) return animeResult;
+      if (animeResult) return animeResult;
     }
 
-    return null
+    return null;
   };
 
   getEpisodeSource = async (animeId: string, episode: number) => {
@@ -87,7 +81,7 @@ class HiAnimeAPI {
 
     // episode not found
     return null;
-  }; 
+  };
 }
 
 export default HiAnimeAPI;

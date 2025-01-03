@@ -313,7 +313,7 @@ const VideoPlayer: React.FC<{
   useEffect(() => {
     if (source !== null) {
       const bestVideo = getBestQualityVideo(source.sources);
-      playSource(bestVideo, source.headers);
+      playSource(bestVideo, source.headers, source.subtitles);
 
       // resume from tracked progress
       const animeId = (listAnime.media.id ||
@@ -376,9 +376,9 @@ const VideoPlayer: React.FC<{
     return videos[0];
   };
 
-  const playSource = (video: IVideo, headers?: any) => {
+  const playSource = (video: IVideo, headers?: any, subtitles?: ISubtitle[]) => {
     if (video.isM3U8) {
-      playHlsVideo(video, headers);
+      playHlsVideo(video, headers, subtitles);
     } else {
       if (videoRef.current) {
         videoRef.current.src = video.url;
@@ -386,7 +386,7 @@ const VideoPlayer: React.FC<{
     }
   };
 
-  const playHlsVideo = (video: IVideo, headers?: any) => {
+  const playHlsVideo = (video: IVideo, headers?: any, subtitles?: ISubtitle[]) => {
     const url = video.url;
     try {
       if (Hls.isSupported() && videoRef.current) {
@@ -403,8 +403,8 @@ const VideoPlayer: React.FC<{
 
         var hls = new Hls();
         hls.loadSource(url);
-        if (video.tracks) {
-          const tracks = video.tracks as ISubtitle[];
+        if (subtitles) {
+          const tracks = subtitles;
           setSubtitleTracks(tracks);
 
           videoRef.current.addEventListener('loadeddata', () => {
@@ -825,8 +825,8 @@ const VideoPlayer: React.FC<{
     if (reloadAtPreviousTime && videoRef.current)
       previousTime = videoRef.current?.currentTime;
 
-    const setData = (video: IVideo, headers?: any) => {
-      playSource(video, headers);
+    const setData = (video: IVideo, headers?: any, subtitles?: ISubtitle[]) => {
+      playSource(video, headers, subtitles);
 
       setEpisodeNumber(episodeToPlay);
       getSkipEvents(episodeToPlay, video);
