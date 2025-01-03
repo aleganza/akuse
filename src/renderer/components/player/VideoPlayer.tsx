@@ -425,7 +425,9 @@ const VideoPlayer: React.FC<{
         hls.attachMedia(videoRef.current);
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           if (videoRef.current) {
-            hls.currentLevel = hls.levels.length - 1;
+            const savedQuality = STORE.get('last_quality');
+            hls.currentLevel = savedQuality !== undefined ? savedQuality as number : hls.levels.length - 1;
+          
             playVideoAndSetTime();
             setHlsData(hls);
           }
