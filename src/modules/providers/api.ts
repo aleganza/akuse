@@ -107,11 +107,12 @@ export const getSourceFromProvider = async (
   episode: number,
 ) => {
   const lang = (await STORE.get('source_flag')) as string;
+  const dubbed = (await STORE.get('dubbed')) as boolean;
 
   switch (lang) {
     case 'HIANIME': {
       const api = new HiAnimeAPI();
-      const source = await api.getEpisodeSource(providerAnimeId, episode);
+      const source = await api.getEpisodeSource(providerAnimeId, episode, dubbed);
 
       return source;
     }

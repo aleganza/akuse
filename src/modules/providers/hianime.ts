@@ -59,7 +59,11 @@ class HiAnimeAPI {
     return null;
   };
 
-  getEpisodeSource = async (animeId: string, episode: number) => {
+  getEpisodeSource = async (
+    animeId: string,
+    episode: number,
+    dubbed: boolean,
+  ) => {
     // first, check cache
     // if(cache.episodes[animeId] !== undefined) {
     //   const found = cache.episodes[animeId]?.find((ep) => ep.number == episode)
@@ -75,7 +79,12 @@ class HiAnimeAPI {
       )?.id ?? null;
 
     if (episodeId) {
-      const video = await apiRequest(`${api}/episode/${episodeId}`);
+      let url = `${api}/episode/${episodeId}`;
+      if (dubbed) {
+        url = url.replace('both', 'dub');
+      }
+
+      const video = await apiRequest(url);
       return video as ISource;
     }
 

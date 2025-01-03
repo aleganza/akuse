@@ -13,7 +13,14 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Store from 'electron-store';
 import Hls from 'hls.js';
-import React, { ChangeEvent, forwardRef, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  forwardRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Dots from 'react-activity/dist/Dots';
 
 import Select from '../Select';
@@ -283,7 +290,10 @@ const VideoSettings = forwardRef<HTMLDivElement, SettingsProps>(
                   zIndex={10}
                   options={subtitleTracks
                     .filter(
-                      (value) => value.lang && value.lang !== 'Thumbnails',
+                      (value) =>
+                        value.lang &&
+                        value.lang !== 'Thumbnails' &&
+                        value.lang !== 'thumbnails',
                     )
                     .map((value) => ({
                       label: value.lang,
@@ -313,7 +323,7 @@ const VideoSettings = forwardRef<HTMLDivElement, SettingsProps>(
                 width={100}
               />
             </li>
-            <li className="dub">
+            {/* <li className="dub">
               <span>
                 <FontAwesomeIcon className="i label" icon={faHeadphones} />
                 Dub
@@ -332,7 +342,7 @@ const VideoSettings = forwardRef<HTMLDivElement, SettingsProps>(
                   <span className="slider round"></span>
                 </label>
               )}
-            </li>
+            </li> */}
             {/* <span className="provider-info">
               {
                 LANGUAGE_OPTIONS.find(
